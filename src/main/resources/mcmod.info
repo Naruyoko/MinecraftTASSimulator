@@ -1,0 +1,17 @@
+[
+{
+  "modid": "minecrafttassimulator",
+  "name": "Minecraft TAS Simulator",
+  "description": "Interactive simulation of Minecraft's player physics, to be used particularly in experimenting with TAS movements.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Naruyoko"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": [],
+  "modLanguage": "java"
+}
+]

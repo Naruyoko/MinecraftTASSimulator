@@ -1,0 +1,17 @@
+[
+{
+  "modid": "minecrafttaseditor",
+  "name": "Minecraft TAS Editor",
+  "description": "Interactive simulation of Minecraft's player physics.",
+  "version": "0.0.2",
+  "mcversion": "1.8.9",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Naruyoko"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": [],
+  "modLanguage": "java"
+}
+]
