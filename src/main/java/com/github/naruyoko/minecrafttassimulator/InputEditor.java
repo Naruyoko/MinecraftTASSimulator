@@ -667,6 +667,10 @@ public class InputEditor {
                 setupRunners();
                 editedSinceLastSimulation=false;
                 editedSinceLastPrediction=false;
+            } else if (readReturnValue instanceof InputFileReader.ReadFailure) {
+                MinecraftTASSimulatorMod.outputErrorToChatAndLog(String.format("Read failed at line %d: %s",((InputFileReader.ReadFailure) readReturnValue).lineN,((InputFileReader.ReadFailure) readReturnValue).message));
+            } else if (readReturnValue instanceof InputFileReader.ReadException) {
+                MinecraftTASSimulatorMod.outputErrorToChatAndLog(String.format("Error raised at line %d: %s",((InputFileReader.ReadException) readReturnValue).lineN,((InputFileReader.ReadException) readReturnValue).exception.getMessage()));
             }
         } catch (NoSuchMethodException e) {
             MinecraftTASSimulatorMod.outputErrorToChatAndLog(e.getMessage());
