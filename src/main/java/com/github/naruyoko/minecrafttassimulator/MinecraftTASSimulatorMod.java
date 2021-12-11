@@ -43,6 +43,10 @@ public class MinecraftTASSimulatorMod {
     public static void onWorldUnload(WorldEvent.Unload event) {
         MinecraftForge.EVENT_BUS.unregister(eventHandler);
     }
+    public static void outputInfoToChatAndLog(String message) {
+        mc.thePlayer.addChatMessage(new ChatComponentText(EnumChatFormatting.WHITE+message));
+        logger.info(message);
+    }
     public static void outputWarningToChatAndLog(String message) {
         mc.thePlayer.addChatMessage(new ChatComponentText(EnumChatFormatting.YELLOW+message));
         logger.warn(message);

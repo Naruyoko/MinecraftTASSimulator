@@ -3,29 +3,26 @@ package com.github.naruyoko.minecrafttassimulator;
 import java.util.ArrayList;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class Predictor {
     private static Minecraft mc=Minecraft.getMinecraft();
     private InputList inputs=null;
+    private InputSideMenu inputSideMenu=null;
     private ArrayList<SimulatedPlayerInfo> playerStates=null;
     private ArrayList<SimulatedPlayerInfo> importedPlayerStates=null;
     private int computedTicksN;
     private int startTick;
     private int targetTick;
-    private Vec3 startPosition=null;
-    private Vec3 startMotion=null;
     private boolean inheritEffectsFromAllTicks=false;
     private boolean isRunning;
     private Runnable callbackOnFinish;
     private Runnable callbackOnAbort;
     private EntityPlayerSPLike virtualPlayer;
-    public Predictor(InputList inputs,Vec3 startPosition,Vec3 startMotion) {
+    public Predictor(InputList inputs,InputSideMenu inputSideMenu) {
         this.inputs=inputs;
-        this.startPosition=startPosition;
-        this.startMotion=startMotion;
+        this.inputSideMenu=inputSideMenu;
         inheritEffectsFromAllTicks=false;
         playerStates=new ArrayList<SimulatedPlayerInfo>();
         importedPlayerStates=new ArrayList<SimulatedPlayerInfo>();
@@ -37,19 +34,11 @@ public class Predictor {
         virtualPlayer=new EntityPlayerSPLike(mc);
         mc.theWorld.spawnEntityInWorld(virtualPlayer);
     }
-    public Predictor(Vec3 startPosition,Vec3 startMotion) {
-        this(new InputList(),startPosition,startMotion);
-    }
-    public Predictor(InputList inputs,EntityPlayer player) {
-        this(inputs,
-                SimulatorUtil.getPositionVector(player),
-                SimulatorUtil.getMotionVector(player));
-    }
-    public Predictor(EntityPlayer player) {
-        this(new InputList(),player);
+    public Predictor(InputSideMenu inputSideMenu) {
+        this(new InputList(),inputSideMenu);
     }
     public Predictor(InputList inputs) {
-        this(inputs,new Vec3(0,0,0),new Vec3(0,0,0));
+        this(inputs,new InputSideMenu());
     }
     public Predictor() {
         this(new InputList());
@@ -71,13 +60,11 @@ public class Predictor {
     public EntityPlayerSPLike getVirtualPlayer() {
         return virtualPlayer;
     }
-    public void setStartPosition(Vec3 startPosition) {
-        //TODO
-        this.startPosition=startPosition;
+    private Vec3 getStartPosition() {
+        return inputSideMenu.getStartPosition();
     }
-    public void setStartMotion(Vec3 startMotion) {
-        //TODO
-        this.startMotion=startMotion;
+    private Vec3 getStartMotion() {
+        return inputSideMenu.getStartMotion();
     }
     public ArrayList<SimulatedPlayerInfo> getPlayerStates() {
         return playerStates;
@@ -160,10 +147,10 @@ public class Predictor {
         boolean canStart=reset();
         if (!canStart) abort();
         if (playerStates.size()<=0) {
-            virtualPlayer.setPosition(startPosition.xCoord,startPosition.yCoord,startPosition.zCoord);
-            virtualPlayer.motionX=startMotion.xCoord;
-            virtualPlayer.motionY=startMotion.yCoord;
-            virtualPlayer.motionZ=startMotion.zCoord;
+            virtualPlayer.setPosition(getStartPosition().xCoord,getStartPosition().yCoord,getStartPosition().zCoord);
+            virtualPlayer.motionX=getStartMotion().xCoord;
+            virtualPlayer.motionY=getStartMotion().yCoord;
+            virtualPlayer.motionZ=getStartMotion().zCoord;
         } else {
             SimulatedPlayerInfo playerState=playerStates.get(startTick);
             virtualPlayer.setPositionAndRotation(playerState.getPositionX(),playerState.getPositionY(),playerState.getPositionZ(),playerState.getRotationYaw(),playerState.getRotationPitch());

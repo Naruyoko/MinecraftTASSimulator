@@ -8,7 +8,6 @@ import org.lwjgl.input.Mouse;
 import com.github.naruyoko.minecrafttassimulator.Input.MouseButtonInputEnum;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldSettings.GameType;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -16,21 +15,16 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class Simulator {
     private static Minecraft mc=Minecraft.getMinecraft();
     private InputList inputs=null;
+    private InputSideMenu inputSideMenu=new InputSideMenu();
     private ArrayList<SimulatedPlayerInfo> playerStates=null;
     private int computedTicksN;
     private int targetTick;
-    private Vec3 startPosition=null;
-    private Vec3 startMotion=null;
-    private int startInvulnerabilityFrames=0;
-    private GameType startGametype=null;
     private boolean isRunning;
     private Runnable callbackOnFinish;
     private Runnable callbackOnAbort;
-    public Simulator(InputList inputs,Vec3 startPosition,Vec3 startMotion,int startInvulnerabilityFrames) {
+    public Simulator(InputList inputs,InputSideMenu inputSideMenu) {
         this.inputs=inputs;
-        this.startPosition=startPosition;
-        this.startMotion=startMotion;
-        this.startInvulnerabilityFrames=startInvulnerabilityFrames;
+        this.inputSideMenu=inputSideMenu;
         playerStates=new ArrayList<SimulatedPlayerInfo>();
         computedTicksN=0;
         isRunning=false;
@@ -38,20 +32,11 @@ public class Simulator {
         callbackOnFinish=null;
         resetInBackground();
     }
-    public Simulator(Vec3 startPosition,Vec3 startMotion,int startInvulnerabilityFrames) {
-        this(new InputList(),startPosition,startMotion,startInvulnerabilityFrames);
-    }
-    public Simulator(InputList inputs,EntityPlayer player) throws IllegalArgumentException, IllegalAccessException {
-        this(inputs,
-                SimulatorUtil.getPositionVector(player),
-                SimulatorUtil.getMotionVector(player),
-                SimulatorUtil.getRespawnInvulnerabilityTicks(SimulatorUtil.getPlayerMP(mc)));
-    }
-    public Simulator(EntityPlayer player) throws IllegalArgumentException, IllegalAccessException {
-        this(new InputList(),player);
+    public Simulator(InputSideMenu inputSideMenu) {
+        this(new InputList(),inputSideMenu);
     }
     public Simulator(InputList inputs) {
-        this(inputs,new Vec3(0,0,0),new Vec3(0,0,0),0);
+        this(inputs,new InputSideMenu());
     }
     public Simulator() {
         this(new InputList());
@@ -60,21 +45,21 @@ public class Simulator {
         this.inputs=inputs;
         resetInBackground();
     }
-    public void setStartPosition(Vec3 startPosition) {
-        this.startPosition=startPosition;
+    public void setInputSideMenu(InputSideMenu inputSideMenu) {
+        this.inputSideMenu=inputSideMenu;
         resetInBackground();
     }
-    public void setStartMotion(Vec3 startMotion) {
-        this.startMotion=startMotion;
-        resetInBackground();
+    private Vec3 getStartPosition() {
+        return inputSideMenu.getStartPosition();
     }
-    public void setStartInvulnerabilityFrames(int startInvulnerabilityFrames) {
-        this.startInvulnerabilityFrames=startInvulnerabilityFrames;
-        resetInBackground();
+    private Vec3 getStartMotion() {
+        return inputSideMenu.getStartMotion();
     }
-    public void setStartGametype(GameType startGametype) {
-        this.startGametype=startGametype;
-        resetInBackground();
+    private GameType getStartGameType() {
+        return inputSideMenu.getStartGametype();
+    }
+    private int getStartInvulnerabilityFrames() {
+        return inputSideMenu.getStartInvulnerabilityFrames();
     }
     public ArrayList<SimulatedPlayerInfo> getPlayerStates() {
         return playerStates;
@@ -93,15 +78,15 @@ public class Simulator {
         computedTicksN=0;
         playerStates=new ArrayList<SimulatedPlayerInfo>();
         if (!silent) {
-            mc.thePlayer.setPositionAndUpdate(startPosition.xCoord,startPosition.yCoord,startPosition.zCoord);
-            if (inputs.size()>0) mc.thePlayer.setPositionAndRotation(startPosition.xCoord,startPosition.yCoord,startPosition.zCoord,(float)inputs.get(0).getRotationYaw(),(float)inputs.get(0).getRotationPitch());
-            else mc.thePlayer.setPosition(startPosition.xCoord,startPosition.yCoord,startPosition.zCoord);
-            mc.thePlayer.motionX=startMotion.xCoord;
-            mc.thePlayer.motionY=startMotion.yCoord;
-            mc.thePlayer.motionZ=startMotion.zCoord;
-            if (startGametype!=null&&!startGametype.equals(GameType.NOT_SET)) mc.playerController.setGameType(startGametype);
+            mc.thePlayer.setPositionAndUpdate(getStartPosition().xCoord,getStartPosition().yCoord,getStartPosition().zCoord);
+            if (inputs.size()>0) mc.thePlayer.setPositionAndRotation(getStartPosition().xCoord,getStartPosition().yCoord,getStartPosition().zCoord,(float)inputs.get(0).getRotationYaw(),(float)inputs.get(0).getRotationPitch());
+            else mc.thePlayer.setPosition(getStartPosition().xCoord,getStartPosition().yCoord,getStartPosition().zCoord);
+            mc.thePlayer.motionX=getStartMotion().xCoord;
+            mc.thePlayer.motionY=getStartMotion().yCoord;
+            mc.thePlayer.motionZ=getStartMotion().zCoord;
+            if (getStartGameType()!=null&&!getStartGameType().equals(GameType.NOT_SET)) mc.playerController.setGameType(getStartGameType());
             try {
-                SimulatorUtil.setRespawnInvulnerabilityTicks(SimulatorUtil.getPlayerMP(mc),startInvulnerabilityFrames);
+                SimulatorUtil.setRespawnInvulnerabilityTicks(SimulatorUtil.getPlayerMP(mc),getStartInvulnerabilityFrames());
             } catch (IllegalArgumentException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

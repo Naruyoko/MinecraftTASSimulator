@@ -1,7 +1,10 @@
 package com.github.naruyoko.minecrafttassimulator;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.github.naruyoko.minecrafttassimulator.Input.MouseButtonInputEnum;
 
@@ -35,9 +38,17 @@ public class EditorCommand extends CommandBase {
         } else if (args[0].equals("stop")) {
             InputEditor.stop();
         } else if (args[0].equals("save")) {
-            InputEditor.saveFile();
+            if (args.length==1) {
+                InputEditor.saveFile();
+            } else {
+                InputEditor.saveFile(args[1]);
+            }
         } else if (args[0].equals("load")) {
-            InputEditor.loadFile();
+            if (args.length==1) {
+                InputEditor.loadFile();
+            } else {
+                InputEditor.loadFile(args[1]);
+            }
         } else if (args[0].equals("reinitsim")) {
             InputEditor.instanciateRunners();
         } else if (args[0].equals("setstartpos")) {
@@ -346,8 +357,7 @@ public class EditorCommand extends CommandBase {
     }
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender,String[] args,BlockPos pos) {
-        if (args.length<1) return null;
-        if (args.length<=2) return getListOfStringsMatchingLastWord(args,
+        if (args.length<=1) return getListOfStringsMatchingLastWord(args,
                 "start",
                 "stop",
                 "save",
@@ -370,6 +380,23 @@ public class EditorCommand extends CommandBase {
                 "detail",
                 "savestatestoslot",
                 "removestatesfromslot");
+        if (args.length==2) {
+            if (args[0].equals("save")) {
+                List<String> list=new ArrayList<String>();
+                Set<String> set=InputFileWorkerEnum.getWritableExtensions();
+                Iterator<String> iterator=set.iterator();
+                boolean hasPeriod=args[1].length()==0||args[1].charAt(0)=='.';
+                while (iterator.hasNext()) list.add(iterator.next().substring(hasPeriod?0:1));
+                return getListOfStringsMatchingLastWord(args,list);
+            } else if (args[0].equals("load")) {
+                List<String> list=new ArrayList<String>();
+                Set<String> set=InputFileWorkerEnum.getReadableExtensions();
+                Iterator<String> iterator=set.iterator();
+                boolean hasPeriod=args[1].length()==0||args[1].charAt(0)=='.';
+                while (iterator.hasNext()) list.add(iterator.next().substring(hasPeriod?0:1));
+                return getListOfStringsMatchingLastWord(args,list);
+            }
+        }
         return null;
     }
     @Override

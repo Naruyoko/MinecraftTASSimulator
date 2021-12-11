@@ -235,6 +235,19 @@ public class SimulatorUtil {
     public static EntityPlayerMP getPlayerMP(Minecraft mc) {
         return mc.getIntegratedServer().getConfigurationManager().getPlayerByUUID(mc.thePlayer.getUniqueID());
     }
+    public static InputSideMenu inputSideMenuFromStartMotions(Vec3 startPosition,Vec3 startMotion,int startInvulnerabilityFrames) {
+        InputSideMenu inputSideMenu=new InputSideMenu();
+        inputSideMenu.setStartPosition(startPosition);
+        inputSideMenu.setStartMotion(startMotion);
+        inputSideMenu.setStartInvulnerabilityFrames(startInvulnerabilityFrames);
+        return inputSideMenu;
+    }
+    public static InputSideMenu inputSideMenuFromPlayer(EntityPlayer player,Minecraft mc) throws IllegalArgumentException, IllegalAccessException {
+        return inputSideMenuFromStartMotions(
+                getPositionVector(player),
+                getMotionVector(player),
+                getRespawnInvulnerabilityTicks(getPlayerMP(mc)));
+    }
     
 
     private static Field EntityLivingBase$jumpTicksField=ReflectionHelper.findField(EntityLivingBase.class,"jumpTicks","field_70773_bE");

@@ -1,3 +1,8 @@
+# 0.0.5 - YYYY/MM/DD
+* Made IO to file extensible to different formats, although only `.mcsim` (the default custom format) has been implemented yet. Possible candidates for external formats include `.tas` files for TASmod.
+* Changed commands
+  * `save` and `load` now accept a file format as an argument
+
 # 0.0.4 - 2021/12/08
 * Added support for simulating mouse clicks
 * Added support for changing mouse sensitivity and maximum singular mouse movement to be simulated
