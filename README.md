@@ -1,5 +1,5 @@
-# Minecraft TAS Simulator
-## For Forge for Minecraft 1.8.9
+# Minecraft TAS Simulator Mod
+## For Minecraft 1.8.9 with Forge
 
 This is a mod providing an interactive simulation of Minecraft's player physics, to be used particularly in experimenting with TAS movements. It is able to replicate some movements such as movement keys and camera movements, which may be useful for looking at parkour and movement mechanics.
 

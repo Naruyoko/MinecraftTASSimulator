@@ -1,4 +1,4 @@
-# 0.0.5 - YYYY/MM/DD
+# 0.0.5 - 2021/12/11
 * Made IO to file extensible to different formats, although only `.mcsim` (the default custom format) has been implemented yet. Possible candidates for external formats include `.tas` files for TASmod.
 * The information about the riding entities are now recorded.
 * Changed commands
