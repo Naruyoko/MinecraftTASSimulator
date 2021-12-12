@@ -16,6 +16,7 @@ import com.github.naruyoko.minecrafttassimulator.Input.MouseButtonInputEnum;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -30,18 +31,21 @@ public class SimulatorUtil {
         return Pattern.matches("^-?\\d+$",value);
     }
     /**
-     * @param player The player to get the vector from.
-     * @return A {@link Vec3} representing the position vector of the player.
+     * @param entity The entity to get the vector from.
+     * @return A {@link Vec3} representing the position vector of the entity.
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
      */
-    public static Vec3 getPositionVector(EntityPlayer player) {
-        return player.getPositionVector();
+    public static Vec3 getPositionVector(Entity entity) throws IllegalArgumentException, IllegalAccessException {
+        if (entity instanceof EntityLivingBase&&getNewPosRotationIncrements((EntityLivingBase)entity)>0) return new Vec3(getNewPosX((EntityLivingBase)entity),getNewPosY((EntityLivingBase)entity),getNewPosZ((EntityLivingBase)entity));
+        else return entity.getPositionVector();
     }
     /**
-     * @param player The player to get the vector from.
-     * @return A {@link Vec3} representing the motion vector of the player.
+     * @param entity The entity to get the vector from.
+     * @return A {@link Vec3} representing the motion vector of the entity.
      */
-    public static Vec3 getMotionVector(EntityPlayer player) {
-        return new Vec3(player.motionX,player.motionY,player.motionZ);
+    public static Vec3 getMotionVector(Entity entity) {
+        return new Vec3(entity.motionX,entity.motionY,entity.motionZ);
     }
     /**
      * @param vector
@@ -101,10 +105,10 @@ public class SimulatorUtil {
     public static String stringifyMouse(Input input,int precision) {
         return String.format("%."+precision+"f",input.getRotationYaw())+","+String.format("%."+precision+"f",input.getRotationPitch());
     }
-    public static String stringifyMouse(SimulatedPlayerInfo playerState) {
+    public static String stringifyMouse(EntityMovementInfo playerState) {
         return playerState.getRotationYaw()+","+playerState.getRotationPitch();
     }
-    public static String stringifyMouse(SimulatedPlayerInfo playerState,int precision) {
+    public static String stringifyMouse(EntityMovementInfo playerState,int precision) {
         return String.format("%."+precision+"f",playerState.getRotationYaw())+","+String.format("%."+precision+"f",playerState.getRotationPitch());
     }
     public static String stringifyMouseButtonInputs(List<MouseButtonInputEnum> list) {
@@ -125,6 +129,7 @@ public class SimulatorUtil {
         return list;
     }
     public static String stringifyPotionEffects(Collection<PotionEffect> potionEffects) {
+        if (potionEffects==null) return "null";
         String r="";
         Iterator<PotionEffect> iterator=potionEffects.iterator();
         while (iterator.hasNext()) {
@@ -250,6 +255,22 @@ public class SimulatorUtil {
     }
     
 
+    private static Field EntityLivingBase$newPosX=ReflectionHelper.findField(EntityLivingBase.class,"newPosX","field_70709_bj");
+    public static double getNewPosX(EntityLivingBase entity) throws IllegalArgumentException, IllegalAccessException {
+        return EntityLivingBase$newPosX.getDouble(entity);
+    }
+    private static Field EntityLivingBase$newPosY=ReflectionHelper.findField(EntityLivingBase.class,"newPosY","field_70710_bk");
+    public static double getNewPosY(EntityLivingBase entity) throws IllegalArgumentException, IllegalAccessException {
+        return EntityLivingBase$newPosY.getDouble(entity);
+    }
+    private static Field EntityLivingBase$newPosZ=ReflectionHelper.findField(EntityLivingBase.class,"newPosZ","field_110152_bk");
+    public static double getNewPosZ(EntityLivingBase entity) throws IllegalArgumentException, IllegalAccessException {
+        return EntityLivingBase$newPosZ.getDouble(entity);
+    }
+    private static Field EntityLivingBase$newPosRotationIncrements=ReflectionHelper.findField(EntityLivingBase.class,"newPosRotationIncrements","field_70716_bi");
+    public static int getNewPosRotationIncrements(EntityLivingBase entity) throws IllegalArgumentException, IllegalAccessException {
+        return EntityLivingBase$newPosRotationIncrements.getInt(entity);
+    }
     private static Field EntityLivingBase$jumpTicksField=ReflectionHelper.findField(EntityLivingBase.class,"jumpTicks","field_70773_bE");
     public static int getJumpTicks(EntityLivingBase entity) throws IllegalArgumentException, IllegalAccessException {
         return EntityLivingBase$jumpTicksField.getInt(entity);

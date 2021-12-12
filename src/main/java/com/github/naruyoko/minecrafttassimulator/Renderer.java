@@ -1,6 +1,7 @@
 package com.github.naruyoko.minecrafttassimulator;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
@@ -54,102 +55,124 @@ public class Renderer {
         int stateIndex=stateTick+1;
         int startIndex=getStartIndex(component);
         int computedTicksN=getComputedTicksN(component);
-        if (computedTicksN-startIndex>=2) {
-            byte[] lineColor=getLineColor(component);
-            GL11.glBegin(GL11.GL_LINE_STRIP);
-            for (int index=startIndex;index<computedTicksN;index++) {
-                int tick=index-1;
-                byte alpha=(byte)(canTrustAt(component,tick)?255:127);
-                SimulatedPlayerInfo playerState=getPlayerStateAtIndex(component,index);
-                Vec3 position=playerState.getPosition();
-                GL11.glColor4ub(lineColor[0],lineColor[1],lineColor[2],alpha);
-                GL11.glVertex3d(position.xCoord,position.yCoord,position.zCoord);
+        boolean hasNextLayer=true;
+        @SuppressWarnings("unchecked")
+        List<EntityMovementInfo> entityInfoList=(List<EntityMovementInfo>)(List<? extends EntityMovementInfo>)getPlayerStates(component).clone();
+        while (hasNextLayer) {
+            if (computedTicksN-startIndex>=2) {
+                byte[] lineColor=getLineColor(component);
+                boolean lineStarted=false;
+                for (int i=startIndex;i<computedTicksN;i++) {
+                    EntityMovementInfo entityInfo=entityInfoList.get(i);
+                    if (entityInfo==null) {
+                        if (lineStarted) {
+                            GL11.glEnd();
+                            lineStarted=false;
+                        }
+                    } else {
+                        if (!lineStarted) {
+                            GL11.glBegin(GL11.GL_LINE_STRIP);
+                            lineStarted=true;
+                        }
+                        int tick=i-1;
+                        byte alpha=(byte)(canTrustAt(component,tick)?255:127);
+                        Vec3 position=entityInfo.getPosition();
+                        GL11.glColor4ub(lineColor[0],lineColor[1],lineColor[2],alpha);
+                        GL11.glVertex3d(position.xCoord,position.yCoord,position.zCoord);
+                    }
+                }
+                if (lineStarted) GL11.glEnd();
+            }
+            GL11.glPointSize(POINT_SIZE);
+            GL11.glBegin(GL11.GL_POINTS);
+            for (int i=startIndex;i<computedTicksN;i++) {
+                EntityMovementInfo entityInfo=entityInfoList.get(i);
+                if (entityInfo!=null) {
+                    int tick=i-1;
+                    if (i!=stateIndex) drawPoint(entityInfo,canTrustAt(component,tick));
+                }
             }
             GL11.glEnd();
-        }
-        GL11.glPointSize(POINT_SIZE);
-        GL11.glBegin(GL11.GL_POINTS);
-        for (int index=startIndex;index<computedTicksN;index++) {
-            int tick=index-1;
-            if (index!=stateIndex) drawPoint(getPlayerStateAtIndex(component,index),canTrustAt(component,tick));
-        }
-        GL11.glEnd();
-        if (stateIndex>=startIndex-1&&computedTicksN>stateIndex) {
-            GL11.glPointSize(POINT_SIZE_FOCUSED);
-            GL11.glBegin(GL11.GL_POINTS);
-            drawPoint(getPlayerStateAtIndex(component,stateIndex),canTrustAt(component,stateIndex));
-            GL11.glEnd();
+            if (stateIndex>=startIndex-1&&computedTicksN>stateIndex) {
+                EntityMovementInfo entityInfo=entityInfoList.get(stateIndex);
+                if (entityInfo!=null) {
+                    GL11.glPointSize(POINT_SIZE_FOCUSED);
+                    GL11.glBegin(GL11.GL_POINTS);
+                    drawPoint(entityInfo,canTrustAt(component,stateIndex));
+                    GL11.glEnd();
+                }
+            }
+            hasNextLayer=false;
+            for (int i=startIndex;i<computedTicksN;i++) {
+                EntityMovementInfo entityInfo=entityInfoList.get(i);
+                if (entityInfo!=null) {
+                    if (entityInfo.isRiding()) hasNextLayer=true;
+                    entityInfoList.set(i,entityInfo.getRidingEntityInfo());
+                }
+            }
         }
     }
     private boolean shouldRender(int component) {
-        if (component==RENDER_SIMULATION) return true;
-        else if (component==RENDER_PREDICTION) return true;
-        else if (component==RENDER_SAVESLOT1) return InputEditor.getSavedPlayerStates(1)!=null;
-        else if (component==RENDER_SAVESLOT2) return InputEditor.getSavedPlayerStates(2)!=null;
-        else if (component==RENDER_SAVESLOT3) return InputEditor.getSavedPlayerStates(3)!=null;
-        else return false;
+        switch (component) {
+        case RENDER_SIMULATION: return true;
+        case RENDER_PREDICTION: return true;
+        case RENDER_SAVESLOT1: return InputEditor.getSavedPlayerStates(1)!=null;
+        case RENDER_SAVESLOT2: return InputEditor.getSavedPlayerStates(2)!=null;
+        case RENDER_SAVESLOT3: return InputEditor.getSavedPlayerStates(3)!=null;
+        default: throw new IllegalArgumentException("Asked for an invalid path");
+        }
     }
     private byte[] getLineColor(int component) {
-        if (component==RENDER_SIMULATION) return new byte[] {(byte)255,(byte)0,(byte)0};
-        else if (component==RENDER_PREDICTION) return new byte[] {(byte)255,(byte)127,(byte)0};
-        else if (component==RENDER_SAVESLOT1) return new byte[] {(byte)0,(byte)127,(byte)255};
-        else if (component==RENDER_SAVESLOT2) return new byte[] {(byte)0,(byte)0,(byte)255};
-        else if (component==RENDER_SAVESLOT3) return new byte[] {(byte)127,(byte)0,(byte)255};
-        else return null;
+        switch (component) {
+        case RENDER_SIMULATION: return new byte[] {(byte)255,(byte)0,(byte)0};
+        case RENDER_PREDICTION: return new byte[] {(byte)255,(byte)127,(byte)0};
+        case RENDER_SAVESLOT1: return new byte[] {(byte)0,(byte)127,(byte)255};
+        case RENDER_SAVESLOT2: return new byte[] {(byte)0,(byte)0,(byte)255};
+        case RENDER_SAVESLOT3: return new byte[] {(byte)127,(byte)0,(byte)255};
+        default: throw new IllegalArgumentException("Asked for an invalid path");
+        }
     }
     private int getStartIndex(int component) {
-        if (component==RENDER_SIMULATION) return 0;
-        else if (component==RENDER_PREDICTION) return InputEditor.getPredictionStartTickActual();
-        else if (component==RENDER_SAVESLOT1) return 0;
-        else if (component==RENDER_SAVESLOT2) return 0;
-        else if (component==RENDER_SAVESLOT3) return 0;
-        else return 0;
+        switch (component) {
+        case RENDER_SIMULATION: return 0;
+        case RENDER_PREDICTION: return InputEditor.getPredictionStartTickActual();
+        case RENDER_SAVESLOT1: return 0;
+        case RENDER_SAVESLOT2: return 0;
+        case RENDER_SAVESLOT3: return 0;
+        default: throw new IllegalArgumentException("Asked for an invalid path");
+        }
     }
     private int getComputedTicksN(int component) {
-        if (component==RENDER_SIMULATION) {
-            Simulator simulator=InputEditor.getSimulator();
-            return simulator.getComputedTicksN();
-        } else if (component==RENDER_PREDICTION) {
-            Predictor predictor=InputEditor.getPredictor();
-            return predictor.getComputedTicksN();
-        } else if (component==RENDER_SAVESLOT1) {
-            ArrayList<SimulatedPlayerInfo> playerStates=InputEditor.getSavedPlayerStates(1);
-            return playerStates.size();
-        } else if (component==RENDER_SAVESLOT2) {
-            ArrayList<SimulatedPlayerInfo> playerStates=InputEditor.getSavedPlayerStates(2);
-            return playerStates.size();
-        } else if (component==RENDER_SAVESLOT3) {
-            ArrayList<SimulatedPlayerInfo> playerStates=InputEditor.getSavedPlayerStates(3);
-            return playerStates.size();
-        } else return 0;
+        switch (component) {
+        case RENDER_SIMULATION: return InputEditor.getSimulator().getComputedTicksN();
+        case RENDER_PREDICTION: return InputEditor.getPredictor().getComputedTicksN();
+        case RENDER_SAVESLOT1: return InputEditor.getSavedPlayerStates(1).size();
+        case RENDER_SAVESLOT2: return InputEditor.getSavedPlayerStates(2).size();
+        case RENDER_SAVESLOT3: return InputEditor.getSavedPlayerStates(3).size();
+        default: throw new IllegalArgumentException("Asked for an invalid path");
+        }
     }
     private boolean canTrustAt(int component,int tick) {
-        if (component==RENDER_SIMULATION) return InputEditor.canTrustSimulationAt(tick);
-        else if (component==RENDER_PREDICTION) return InputEditor.canTrustPredictionAt(tick);
-        else if (component==RENDER_SAVESLOT1) return true;
-        else if (component==RENDER_SAVESLOT2) return true;
-        else if (component==RENDER_SAVESLOT3) return true;
-        else return false;
+        switch (component) {
+        case RENDER_SIMULATION: return InputEditor.canTrustSimulationAt(tick);
+        case RENDER_PREDICTION: return InputEditor.canTrustPredictionAt(tick);
+        case RENDER_SAVESLOT1: return true;
+        case RENDER_SAVESLOT2: return true;
+        case RENDER_SAVESLOT3: return true;
+        default: throw new IllegalArgumentException("Asked for an invalid path");
+        }
     }
-    private SimulatedPlayerInfo getPlayerStateAtIndex(int component,int index) {
-        if (component==RENDER_SIMULATION) {
-            Simulator simulator=InputEditor.getSimulator();
-            return simulator.getPlayerStateAtIndex(index);
-        } else if (component==RENDER_PREDICTION) {
-            Predictor predictor=InputEditor.getPredictor();
-            return predictor.getPlayerStateAtIndex(index);
-        } else if (component==RENDER_SAVESLOT1) {
-            ArrayList<SimulatedPlayerInfo> playerStates=InputEditor.getSavedPlayerStates(1);
-            return playerStates.get(index);
-        } else if (component==RENDER_SAVESLOT2) {
-            ArrayList<SimulatedPlayerInfo> playerStates=InputEditor.getSavedPlayerStates(2);
-            return playerStates.get(index);
-        } else if (component==RENDER_SAVESLOT3) {
-            ArrayList<SimulatedPlayerInfo> playerStates=InputEditor.getSavedPlayerStates(3);
-            return playerStates.get(index);
-        } else return null;
+    private ArrayList<SimulatedPlayerInfo> getPlayerStates(int component){
+        switch (component) {
+        case RENDER_SIMULATION: return InputEditor.getSimulator().getPlayerStates();
+        case RENDER_PREDICTION: return InputEditor.getPredictor().getPlayerStates();
+        case RENDER_SAVESLOT1: return InputEditor.getSavedPlayerStates(1);
+        case RENDER_SAVESLOT2: return InputEditor.getSavedPlayerStates(2);
+        case RENDER_SAVESLOT3: return InputEditor.getSavedPlayerStates(3);
+        default: throw new IllegalArgumentException("Asked for an invalid path");
+        }
     }
-    private void drawPoint(SimulatedPlayerInfo playerState,boolean canTrust) {
+    private void drawPoint(EntityMovementInfo playerState,boolean canTrust) {
         byte alpha=(byte)(canTrust?255:127);
         if (playerState.isOnGround()) {
             if (playerState.isCollidedHorizontally()) {

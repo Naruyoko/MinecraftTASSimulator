@@ -52,10 +52,18 @@ public class EditorCommand extends CommandBase {
         } else if (args[0].equals("reinitsim")) {
             InputEditor.instanciateRunners();
         } else if (args[0].equals("setstartpos")) {
-            Vec3 startPosition;
+            Vec3 startPosition = null;
             if (args.length==1) {
                 EntityPlayerMP player=getCommandSenderAsPlayer(sender);
-                startPosition=SimulatorUtil.getPositionVector(player);
+                try {
+                    startPosition=SimulatorUtil.getPositionVector(player);
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             } else if (args.length==4) {
                 EntityPlayerMP player=getCommandSenderAsPlayer(sender);
                 CommandBase.CoordinateArg coordinateArg1=parseCoordinate(player.posX,args[1],true);
@@ -228,16 +236,22 @@ public class EditorCommand extends CommandBase {
         } else if (args[0].equals("detail")) {
             PlayerStateInfo playerStateInfo=getPlayerStateInfo(sender,args,1);
             int tick=playerStateInfo.tick;
-            SimulatedPlayerInfo playerState=playerStateInfo.playerState;
+            EntityMovementInfo entityInfo=playerStateInfo.playerState;
             String sourceStr=playerStateInfo.sourceStr;
             sender.addChatMessage(new ChatComponentText("Tick "+tick+" in "+sourceStr));
-            sender.addChatMessage(new ChatComponentText("Position: "+SimulatorUtil.stringifyVec3(playerState.getPosition(),8)));
-            sender.addChatMessage(new ChatComponentText("Motion: "+SimulatorUtil.stringifyVec3(playerState.getMotion(),8)));
-            sender.addChatMessage(new ChatComponentText("Rotation: "+SimulatorUtil.stringifyMouse(playerState,8)));
-            sender.addChatMessage(new ChatComponentText("Horizontal Speed: "+String.format("%.8f",playerState.getHorizontalSpeed(),8)));
-            sender.addChatMessage(new ChatComponentText(playerState.isOnGround()?"On ground":"In air"));
-            sender.addChatMessage(new ChatComponentText(playerState.isCollidedHorizontally()?"Collided":"Not collided"));
-            sender.addChatMessage(new ChatComponentText("Effects: "+SimulatorUtil.stringifyPotionEffects(playerState.getPotionEffects())));
+            while (entityInfo!=null) {
+                sender.addChatMessage(new ChatComponentText("Position: "+SimulatorUtil.stringifyVec3(entityInfo.getPosition(),8)));
+                sender.addChatMessage(new ChatComponentText("Motion: "+SimulatorUtil.stringifyVec3(entityInfo.getMotion(),8)));
+                sender.addChatMessage(new ChatComponentText("Rotation: "+SimulatorUtil.stringifyMouse(entityInfo,8)));
+                sender.addChatMessage(new ChatComponentText("Horizontal Speed: "+String.format("%.8f",entityInfo.getHorizontalSpeed(),8)));
+                sender.addChatMessage(new ChatComponentText(entityInfo.isOnGround()?"On ground":"In air"));
+                sender.addChatMessage(new ChatComponentText(entityInfo.isCollidedHorizontally()?"Collided":"Not collided"));
+                sender.addChatMessage(new ChatComponentText("Effects: "+SimulatorUtil.stringifyPotionEffects(entityInfo.getPotionEffects())));
+                if (entityInfo.isRiding()) {
+                    sender.addChatMessage(new ChatComponentText("Riding: "+entityInfo.getRidingEntityInfo().getThisClass().getSimpleName()));
+                }
+                entityInfo=entityInfo.getRidingEntityInfo();
+            }
         } else if (args[0].equals("savestatestoslot")) {
             if (args.length==2) {
                 int slot=Integer.parseInt(args[1]);

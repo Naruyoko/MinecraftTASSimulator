@@ -78,9 +78,9 @@ public class InputEditor {
                     wasEverInit=true;
                     instanciateRunners();
                     if (mc.thePlayer!=null) {
-                        setStartPosition(SimulatorUtil.getPositionVector(mc.thePlayer));
-                        setStartMotion(SimulatorUtil.getMotionVector(mc.thePlayer));
                         try {
+                            setStartPosition(SimulatorUtil.getPositionVector(mc.thePlayer));
+                            setStartMotion(SimulatorUtil.getMotionVector(mc.thePlayer));
                             setStartInvulnerabilityFrames(SimulatorUtil.getRespawnInvulnerabilityTicks(SimulatorUtil.getPlayerMP(mc)));
                         } catch (IllegalArgumentException e) {
                             e.printStackTrace();
@@ -419,7 +419,15 @@ public class InputEditor {
             calculateAccurateInputs();
             setupSimulator();
         }
-        savedPosition=SimulatorUtil.getPositionVector(mc.thePlayer);
+        try {
+            savedPosition=SimulatorUtil.getPositionVector(mc.thePlayer);
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         savedRotationYaw=mc.thePlayer.rotationYaw;
         savedRotationPitch=mc.thePlayer.rotationPitch;
         savedGametype=mc.playerController.getCurrentGameType();

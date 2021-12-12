@@ -93,13 +93,29 @@ public class EditorGui extends Gui {
         EntityPlayerSP player=mc.thePlayer;
         drawRightAlignedLine(SimulatorUtil.stringifyKeys(Input.from(mc)),0xffffff);
         drawRightAlignedLine(SimulatorUtil.stringifyMouse(Input.from(mc),8),0xffffff);
-        drawRightAlignedLine(SimulatorUtil.stringifyVec3(SimulatorUtil.getPositionVector(player),8),0xffffff);
+        try {
+            drawRightAlignedLine(SimulatorUtil.stringifyVec3(SimulatorUtil.getPositionVector(player),8),0xffffff);
+        } catch (IllegalArgumentException e) {
+            drawRightAlignedLine("Error",0xff5555);
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            drawRightAlignedLine("Error",0xff5555);
+            e.printStackTrace();
+        }
         drawRightAlignedLine(SimulatorUtil.stringifyVec3(SimulatorUtil.getMotionVector(player),8),0xffffff);
         drawRightAlignedLine(SimulatorUtil.stringifyPotionEffects(player.getActivePotionEffects()),0xffffff);
         EntityPlayerSPLike virtualplayer=predictor.getVirtualPlayer();
         if (virtualplayer!=null) {
             drawRightAlignedLine("",0xffffff);
-            drawRightAlignedLine(SimulatorUtil.stringifyVec3(SimulatorUtil.getPositionVector(virtualplayer),8),0xffffff);
+            try {
+                drawRightAlignedLine(SimulatorUtil.stringifyVec3(SimulatorUtil.getPositionVector(virtualplayer),8),0xffffff);
+            } catch (IllegalArgumentException e) {
+                drawRightAlignedLine("Error",0xff5555);
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                drawRightAlignedLine("Error",0xff5555);
+                e.printStackTrace();
+            }
             drawRightAlignedLine(SimulatorUtil.stringifyVec3(SimulatorUtil.getMotionVector(virtualplayer),8),0xffffff);
         }
         drawLine("",0xffffff);
@@ -108,7 +124,7 @@ public class EditorGui extends Gui {
             SimulatedPlayerInfo playerState=simulator.getPlayerStateAtIndex(stateIndex);
             drawRightAlignedLine(SimulatorUtil.stringifyVec3(playerState.getPosition(),8),infocolor);
             drawRightAlignedLine(SimulatorUtil.stringifyVec3(playerState.getMotion(),8),infocolor);
-            drawRightAlignedLine((playerState.isOnGround()?"On ground":"In air")+","+(playerState.isCollidedHorizontally()?"Collided":"Not collided"),infocolor);
+            drawRightAlignedLine((playerState.isOnGround()?"On ground":"In air")+","+(playerState.isCollidedHorizontally()?"Collided":"Not collided")+","+(playerState.isRiding()?"Riding":"Not riding"),infocolor);
             drawRightAlignedLine(SimulatorUtil.stringifyPotionEffects(playerState.getPotionEffects()),infocolor);
         } else {
             drawRightAlignedLine("",0xffffff);
@@ -122,7 +138,7 @@ public class EditorGui extends Gui {
             SimulatedPlayerInfo playerState=predictor.getPlayerStateAtIndex(stateIndex);
             drawRightAlignedLine(SimulatorUtil.stringifyVec3(playerState.getPosition(),8),infocolor);
             drawRightAlignedLine(SimulatorUtil.stringifyVec3(playerState.getMotion(),8),infocolor);
-            drawRightAlignedLine((playerState.isOnGround()?"On ground":"In air")+","+(playerState.isCollidedHorizontally()?"Collided":"Not collided"),infocolor);
+            drawRightAlignedLine((playerState.isOnGround()?"On ground":"In air")+","+(playerState.isCollidedHorizontally()?"Collided":"Not collided")+","+(playerState.isRiding()?"Riding":"Not riding"),infocolor);
             drawRightAlignedLine(SimulatorUtil.stringifyPotionEffects(playerState.getPotionEffects()),infocolor);
         } else {
             drawRightAlignedLine("",0xffffff);
