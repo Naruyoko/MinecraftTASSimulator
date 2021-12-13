@@ -43,8 +43,24 @@ public class Predictor {
     public Predictor() {
         this(new InputList());
     }
-    public void setInputs(InputList inputs) {
+    public void setInputs(InputList inputs,boolean reset) {
         this.inputs=inputs;
+        if (reset) reset();
+    }
+    public void setInputs(InputList inputs) {
+        setInputs(inputs,true);
+    }
+    public void setInputSideMenu(InputSideMenu inputSideMenu,boolean reset) {
+        this.inputSideMenu=inputSideMenu;
+        if (reset) reset();
+    }
+    public void setInputSideMenu(InputSideMenu inputSideMenu) {
+        setInputSideMenu(inputSideMenu,true);
+    }
+    public void setInputs(InputList inputs,InputSideMenu inputSideMenu) {
+        setInputs(inputs,false);
+        setInputSideMenu(inputSideMenu,false);
+        reset();
     }
     public Input getInputAt(int tick) {
         return inputs.get(tick);

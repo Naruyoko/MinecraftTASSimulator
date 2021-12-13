@@ -41,12 +41,23 @@ public class Simulator {
     public Simulator() {
         this(new InputList());
     }
-    public void setInputs(InputList inputs) {
+    public void setInputs(InputList inputs,boolean reset) {
         this.inputs=inputs;
-        resetInBackground();
+        if (reset) resetInBackground();
+    }
+    public void setInputs(InputList inputs) {
+        setInputs(inputs,true);
+    }
+    public void setInputSideMenu(InputSideMenu inputSideMenu,boolean reset) {
+        this.inputSideMenu=inputSideMenu;
+        if (reset) resetInBackground();
     }
     public void setInputSideMenu(InputSideMenu inputSideMenu) {
-        this.inputSideMenu=inputSideMenu;
+        setInputSideMenu(inputSideMenu,true);
+    }
+    public void setInputs(InputList inputs,InputSideMenu inputSideMenu) {
+        setInputs(inputs,false);
+        setInputSideMenu(inputSideMenu,false);
         resetInBackground();
     }
     private Vec3 getStartPosition() {

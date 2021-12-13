@@ -1,3 +1,6 @@
+# 0.0.6 - YYYY/MM/DD
+* Fixed a fatal crash when attempting to start prediction such that it must be started before the time specified.
+
 # 0.0.5 - 2021/12/11
 * Made IO to file extensible to different formats, although only `.mcsim` (the default custom format) has been implemented yet. Possible candidates for external formats include `.tas` files for TASmod.
 * The information about the riding entities are now recorded.

@@ -393,15 +393,13 @@ public class InputEditor {
      * Sends the inputs and configuration object to the simulator.
      */
     public static void setupSimulator() {
-        simulator.setInputs(actualInputs);
-        simulator.setInputSideMenu(inputSideMenu);
+        simulator.setInputs(actualInputs,inputSideMenu);
     }
     /**
      * Sends the inputs, configuration object, and the simulator to the predictor.
      */
     public static void setupPredictor() {
-        predictor.setInputs(actualInputs);
-        simulator.setInputSideMenu(inputSideMenu);
+        predictor.setInputs(actualInputs,inputSideMenu);
         predictor.setInheritEffectsFromAllTicks(inheritEffectsFromAllTicks);
     }
     /**
