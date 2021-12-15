@@ -30,7 +30,7 @@ For more information on TAS (tool-assisted speedruns), consult [TASVideos](http:
 
 You can find a built jar at the [releases](https://github.com/Naruyoko/MinecraftTASSimulator/releases) on GitHub. Alternatively, you may clone the repository and build it yourself.
 
-You can find the controls in [controls.md].
+You can find the controls in [controls.md](controls.md).
 
 ## Features
 
