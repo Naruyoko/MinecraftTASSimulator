@@ -11,6 +11,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(modid=MinecraftTASSimulatorMod.MODID,name=MinecraftTASSimulatorMod.NAME,version=MinecraftTASSimulatorMod.VERSION)
 public class MinecraftTASSimulatorMod {
@@ -20,6 +23,7 @@ public class MinecraftTASSimulatorMod {
     public static final String MCVERSION="${mcversion}";
     private static Minecraft mc=Minecraft.getMinecraft();
     public static Logger logger=null;
+    public static SimpleNetworkWrapper NETWORK;
     public static EditorGui gui;
     public static Renderer renderer;
     public static EditorKeybinds keybinds;
@@ -28,6 +32,8 @@ public class MinecraftTASSimulatorMod {
     public void preInit(FMLPreInitializationEvent event)
     {
         logger=event.getModLog();
+        NETWORK=NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+        NETWORK.registerMessage(PrecisePositionPacketHandler.class,PrecisePositionPacket.class,0,Side.CLIENT);
     }
     @EventHandler
     public void init(FMLServerStartingEvent event)

@@ -21,6 +21,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.WorldSettings.GameType;
@@ -39,6 +41,15 @@ public class SimulatorUtil {
     public static Vec3 getPositionVector(Entity entity) throws IllegalArgumentException, IllegalAccessException {
         if (entity instanceof EntityLivingBase&&getNewPosRotationIncrements((EntityLivingBase)entity)>0) return new Vec3(getNewPosX((EntityLivingBase)entity),getNewPosY((EntityLivingBase)entity),getNewPosZ((EntityLivingBase)entity));
         else return entity.getPositionVector();
+    }
+    public static Vec3 getPositionVectorUseSendFromServer(Entity entity) throws IllegalArgumentException, IllegalAccessException {
+        int id=entity.getEntityId();
+        if (PrecisePosition.has(id)) {
+            PrecisePositionPacket packet=PrecisePosition.get(id);
+            return new Vec3(packet.getPosX(),packet.getPosY(),packet.getPosZ());
+        } else {
+            return getPositionVector(entity);
+        }
     }
     /**
      * @param entity The entity to get the vector from.
@@ -238,7 +249,13 @@ public class SimulatorUtil {
         return map.values();
     }
     public static EntityPlayerMP getPlayerMP(Minecraft mc) {
-        return mc.getIntegratedServer().getConfigurationManager().getPlayerByUUID(mc.thePlayer.getUniqueID());
+        IntegratedServer integratedServer = mc.getIntegratedServer();
+        if (integratedServer==null) return null;
+        ServerConfigurationManager configurationManager = integratedServer.getConfigurationManager();
+        if (configurationManager==null) return null;
+        EntityPlayerSP thePlayer = mc.thePlayer;
+        if (thePlayer==null) return null;
+        return configurationManager.getPlayerByUUID(thePlayer.getUniqueID());
     }
     public static InputSideMenu inputSideMenuFromStartMotions(Vec3 startPosition,Vec3 startMotion,int startInvulnerabilityFrames) {
         InputSideMenu inputSideMenu=new InputSideMenu();

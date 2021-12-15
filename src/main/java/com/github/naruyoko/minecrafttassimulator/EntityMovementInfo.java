@@ -9,6 +9,7 @@ import net.minecraft.util.Vec3;
 
 public class EntityMovementInfo {
     private Class<? extends Entity> thisClass;
+    private int entityID;
     private Vec3 position;
     private Vec3 motion;
     private boolean onGround;
@@ -24,9 +25,10 @@ public class EntityMovementInfo {
     private boolean isRiding;
     private EntityMovementInfo ridingEntityInfo;
     public EntityMovementInfo(Entity entity) {
-        setThisClass(entity.getClass());
+        thisClass=entity.getClass();
+        entityID=entity.getEntityId();
         try {
-            position=SimulatorUtil.getPositionVector(entity);
+            position=SimulatorUtil.getPositionVectorUseSendFromServer(entity);
         } catch (IllegalArgumentException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -59,6 +61,8 @@ public class EntityMovementInfo {
         ridingEntityInfo=isRiding?new EntityMovementInfo(entity.ridingEntity):null;
     }
     public EntityMovementInfo() {
+        thisClass=null;
+        entityID=0;
         position=new Vec3(0,0,0);
         motion=new Vec3(0,0,0);
         onGround=false;
@@ -76,6 +80,12 @@ public class EntityMovementInfo {
     }
     public void setThisClass(Class<? extends Entity> thisClass) {
         this.thisClass = thisClass;
+    }
+    public int getEntityID() {
+        return entityID;
+    }
+    public void setEntityID(int entityID) {
+        this.entityID = entityID;
     }
     public Vec3 getPosition() {
         return position;
