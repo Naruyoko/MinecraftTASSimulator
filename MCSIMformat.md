@@ -10,6 +10,7 @@ There are a few sections containing different parts of the file, which are noted
 ## Sections
 
 ### `property`
+
 This section notes various properties for the simulation other than the inputs. Some are configurations for the simulation, while others provide information about the file. They are written as key-value pairs.
 
 * `startPosition=<x>,<y>,<z>`
@@ -38,6 +39,7 @@ This section notes various properties for the simulation other than the inputs. 
   * Indicates that the file was created with editor version `<str>`.
 
 ### `input`
+
 This section contains the inputs that is simulated. They are written as a table.
 
 * Lines are of format `<tick#>|<buttons>|<yaw>,<pitch>|<flags>`.
@@ -53,12 +55,12 @@ This section contains the inputs that is simulated. They are written as a table.
   * `_` - Jump
   * `+` - Sneak
   * `^` - Sprint
-* Buttons are seen pressed if the corresponding position is not ` ` or `.`.
+* Buttons are seen pressed if the corresponding position is not a space or `.`.
 * Flags:
   * There may be multiple flags for a line. A flag may be followed by `{` to provide additional options, which is closed by `}`.
   * `=` - Yaw and pitch is exact at this point, otherwise approximate using the shortest path by pixel.
   * `m` - Mouse clicks should be simulated. There may be multiple inputs in a tick. The contents are the string of the letters:
-    * `L` - Press down LL
+    * `L` - Press down LC
     * `l` - Release LC
     * `R` - Press down RC
     * `r` - Release LC
