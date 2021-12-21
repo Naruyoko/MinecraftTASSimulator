@@ -1,4 +1,4 @@
-# 0.0.6 - YYYY/MM/DD
+# 0.0.6 - 2021/12/20
 * Fixed a fatal crash when attempting to start prediction such that it must be started before the time specified.
 * Report the positions of the riding entities precisely.
 

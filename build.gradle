@@ -5,7 +5,7 @@ buildscript {
         jcenter()
         maven {
             name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+            url = "https://files.minecraftforge.net/maven"
         }
     }
     dependencies {
@@ -15,7 +15,7 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "0.0.6-SNAPSHOT"
+version = "0.0.6"
 group= "com.github.naruyoko.minecrafttassimulator" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "MinecraftTASSimulator-1.8.9"
 
